@@ -1,3 +1,4 @@
+from app.core.security import hash_password
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
@@ -22,7 +23,7 @@ def create_user(user: UserCreate, db: Session = Depends(get_db)):
     new_user = User(
         full_name=user.full_name,
         email=user.email,
-        password=user.password,
+        password=hash_password(user.password),
         role=user.role
     )
 
@@ -141,7 +142,7 @@ def update_user(
         user.email = updated_user.email
 
     if updated_user.password is not None:
-        user.password = updated_user.password
+        user.password = hash_password(updated_user.password)
 
     if updated_user.role is not None:
         user.role = updated_user.role
