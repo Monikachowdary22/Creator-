@@ -2,12 +2,16 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from app.db.database import get_db
+
 from app.services.analytics_service import (
     calculate_engagement_rate,
     get_top_content,
     get_platform_performance,
-    get_dashboard_summary,
+    get_kpi_summary,
+    get_engagement_chart,
+    get_follower_growth_chart,
 )
+
 
 router = APIRouter(
     prefix="/analytics",
@@ -20,7 +24,10 @@ def content_engagement(
     content_id: int,
     db: Session = Depends(get_db)
 ):
-    result = calculate_engagement_rate(db, content_id)
+    result = calculate_engagement_rate(
+        db,
+        content_id
+    )
 
     if result is None:
         raise HTTPException(
@@ -49,4 +56,18 @@ def platform_performance(
 def dashboard_summary(
     db: Session = Depends(get_db)
 ):
-    return get_dashboard_summary(db)
+    return get_kpi_summary(db)
+
+
+@router.get("/chart/engagement")
+def engagement_chart(
+    db: Session = Depends(get_db)
+):
+    return get_engagement_chart(db)
+
+
+@router.get("/chart/followers")
+def follower_growth_chart(
+    db: Session = Depends(get_db)
+):
+    return get_follower_growth_chart(db)

@@ -7,7 +7,6 @@ class Growth(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     creator_id = Column(Integer, nullable=False)
-
     date = Column(Date, nullable=False)
     followers = Column(Integer, nullable=False)
     reach = Column(Integer, nullable=False)

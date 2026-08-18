@@ -5,11 +5,18 @@ from app.db.database import get_db
 from app.models.content import Content
 from app.schemas.content import ContentCreate, ContentUpdate
 
-router = APIRouter()
+
+router = APIRouter(
+    prefix="/content",
+    tags=["Content"]
+)
 
 
+# ==========================================
 # Create Content
-@router.post("/content")
+# ==========================================
+
+@router.post("")
 def create_content(
     content: ContentCreate,
     db: Session = Depends(get_db)
@@ -38,8 +45,11 @@ def create_content(
     }
 
 
+# ==========================================
 # Get All Content
-@router.get("/content")
+# ==========================================
+
+@router.get("")
 def get_all_content(
     db: Session = Depends(get_db)
 ):
@@ -51,8 +61,11 @@ def get_all_content(
     }
 
 
+# ==========================================
 # Get Content By ID
-@router.get("/content/{content_id}")
+# ==========================================
+
+@router.get("/{content_id}")
 def get_content(
     content_id: int,
     db: Session = Depends(get_db)
@@ -72,8 +85,11 @@ def get_content(
     }
 
 
+# ==========================================
 # Update Content
-@router.put("/content/{content_id}")
+# ==========================================
+
+@router.put("/{content_id}")
 def update_content(
     content_id: int,
     updated_content: ContentUpdate,
@@ -131,8 +147,11 @@ def update_content(
     }
 
 
+# ==========================================
 # Delete Content
-@router.delete("/content/{content_id}")
+# ==========================================
+
+@router.delete("/{content_id}")
 def delete_content(
     content_id: int,
     db: Session = Depends(get_db)
