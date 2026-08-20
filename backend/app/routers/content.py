@@ -21,9 +21,23 @@ def create_content(
     content: ContentCreate,
     db: Session = Depends(get_db)
 ):
+    # Check duplicate platform + external content ID
+    if content.external_content_id:
+        existing_content = db.query(Content).filter(
+            Content.platform == content.platform,
+            Content.external_content_id == content.external_content_id
+        ).first()
+
+        if existing_content:
+            raise HTTPException(
+                status_code=409,
+                detail="Content with this external ID already exists"
+            )
+
     new_content = Content(
         creator_id=content.creator_id,
         platform=content.platform,
+        external_content_id=content.external_content_id,
         content_title=content.content_title,
         views=content.views,
         likes=content.likes,
@@ -110,6 +124,24 @@ def update_content(
 
     if updated_content.platform is not None:
         content.platform = updated_content.platform
+
+    if updated_content.external_content_id is not None:
+        duplicate = db.query(Content).filter(
+            Content.platform == content.platform,
+            Content.external_content_id ==
+            updated_content.external_content_id,
+            Content.id != content.id
+        ).first()
+
+        if duplicate:
+            raise HTTPException(
+                status_code=409,
+                detail="Another content record already uses this external ID"
+            )
+
+        content.external_content_id = (
+            updated_content.external_content_id
+        )
 
     if updated_content.content_title is not None:
         content.content_title = updated_content.content_title

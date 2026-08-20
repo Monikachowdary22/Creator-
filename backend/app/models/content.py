@@ -1,10 +1,18 @@
-from sqlalchemy import Column, Integer, String, Date
+from sqlalchemy import Column, Integer, String, Date, UniqueConstraint
 
 from app.db.database import Base
 
 
 class Content(Base):
     __tablename__ = "content"
+
+    __table_args__ = (
+        UniqueConstraint(
+            "platform",
+            "external_content_id",
+            name="uq_content_platform_external_id"
+        ),
+    )
 
     id = Column(
         Integer,
@@ -20,6 +28,11 @@ class Content(Base):
     platform = Column(
         String,
         nullable=False
+    )
+
+    external_content_id = Column(
+        String,
+        nullable=True
     )
 
     content_title = Column(

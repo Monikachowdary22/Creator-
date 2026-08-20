@@ -7,6 +7,7 @@ from app.services.analytics_service import (
     calculate_engagement_rate,
     get_top_content,
     get_platform_performance,
+    get_platform_comparison,
     get_kpi_summary,
     get_engagement_chart,
     get_follower_growth_chart,
@@ -50,6 +51,13 @@ def platform_performance(
     db: Session = Depends(get_db)
 ):
     return get_platform_performance(db)
+
+
+@router.get("/platform-comparison")
+def platform_comparison(
+    db: Session = Depends(get_db)
+):
+    return get_platform_comparison(db)
 
 
 @router.get("/summary")

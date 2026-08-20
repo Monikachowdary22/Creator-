@@ -3,11 +3,13 @@ from sqlalchemy.orm import Session
 from app.models.content import Content
 from app.models.growth import Growth
 
+
 # ==========================================
 # Sprint 2 - Engagement Rate
 # ==========================================
 
 def calculate_engagement_rate(db: Session, content_id: int):
+
     content = (
         db.query(Content)
         .filter(Content.id == content_id)
@@ -37,7 +39,10 @@ def calculate_engagement_rate(db: Session, content_id: int):
         "views": content.views,
         "reach": content.reach,
         "total_engagement": total_engagement,
-        "engagement_rate": round(engagement_rate, 2)
+        "engagement_rate": round(
+            engagement_rate,
+            2
+        )
     }
 
 
@@ -46,11 +51,13 @@ def calculate_engagement_rate(db: Session, content_id: int):
 # ==========================================
 
 def get_top_content(db: Session):
+
     contents = db.query(Content).all()
 
     results = []
 
     for content in contents:
+
         total_engagement = (
             content.likes
             + content.comments
@@ -72,7 +79,8 @@ def get_top_content(db: Session):
             "reach": content.reach,
             "watch_time": content.watch_time,
             "engagement_rate": round(
-                engagement_rate, 2
+                engagement_rate,
+                2
             )
         })
 
@@ -89,6 +97,7 @@ def get_top_content(db: Session):
 # ==========================================
 
 def get_platform_performance(db: Session):
+
     contents = db.query(Content).all()
 
     platforms = {}
@@ -153,6 +162,84 @@ def get_platform_performance(db: Session):
                 2
             )
         })
+
+    return results
+
+
+# ==========================================
+# Sprint 5 - Platform Comparison
+# ==========================================
+
+def get_platform_comparison(db: Session):
+
+    contents = db.query(Content).all()
+
+    platforms = {}
+
+    for content in contents:
+
+        if content.platform not in platforms:
+
+            platforms[content.platform] = {
+                "content_count": 0,
+                "total_views": 0,
+                "total_likes": 0,
+                "total_comments": 0,
+                "total_shares": 0,
+                "total_reach": 0,
+                "total_engagement": 0
+            }
+
+        platforms[content.platform]["content_count"] += 1
+
+        platforms[content.platform]["total_views"] += content.views
+
+        platforms[content.platform]["total_likes"] += content.likes
+
+        platforms[content.platform]["total_comments"] += content.comments
+
+        platforms[content.platform]["total_shares"] += content.shares
+
+        platforms[content.platform]["total_reach"] += content.reach
+
+        platforms[content.platform]["total_engagement"] += (
+            content.likes
+            + content.comments
+            + content.shares
+            + content.saves
+        )
+
+    results = []
+
+    for platform, data in platforms.items():
+
+        if data["total_reach"] == 0:
+            engagement_rate = 0
+        else:
+            engagement_rate = (
+                data["total_engagement"]
+                / data["total_reach"]
+            ) * 100
+
+        results.append({
+            "platform": platform,
+            "content_count": data["content_count"],
+            "total_views": data["total_views"],
+            "total_likes": data["total_likes"],
+            "total_comments": data["total_comments"],
+            "total_shares": data["total_shares"],
+            "total_reach": data["total_reach"],
+            "total_engagement": data["total_engagement"],
+            "engagement_rate": round(
+                engagement_rate,
+                2
+            )
+        })
+
+    results.sort(
+        key=lambda x: x["engagement_rate"],
+        reverse=True
+    )
 
     return results
 
@@ -375,6 +462,8 @@ def get_dashboard_summary(db: Session):
         "top_content":
             top_content.content_title
     }
+
+
 # ==========================================
 # Sprint 4 - Follower Growth Chart
 # ==========================================
