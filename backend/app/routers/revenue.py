@@ -2,6 +2,8 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from app.db.database import get_db
+from app.models.user import User
+from app.core.auth import get_current_user
 
 from app.schemas.revenue import (
     RevenueCreate,
@@ -34,8 +36,11 @@ router = APIRouter(
 @router.post("")
 def create_revenue_api(
     revenue: RevenueCreate,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
 ):
+    revenue.creator_id = current_user.id
+
     return create_revenue(
         db,
         revenue
@@ -43,17 +48,17 @@ def create_revenue_api(
 
 
 # ==========================================
-# Get All Revenue
+# Get All Revenue - Current User Only
 # ==========================================
 
 @router.get("")
 def get_revenue_api(
-    creator_id: int = None,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
 ):
     revenues = get_all_revenue(
         db,
-        creator_id
+        current_user.id
     )
 
     return {
@@ -63,32 +68,32 @@ def get_revenue_api(
 
 
 # ==========================================
-# Total Revenue
+# Total Revenue - Current User Only
 # ==========================================
 
 @router.get("/analytics/summary")
 def revenue_summary_api(
-    creator_id: int = None,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
 ):
     return get_total_revenue(
         db,
-        creator_id
+        current_user.id
     )
 
 
 # ==========================================
-# Revenue By Source
+# Revenue By Source - Current User Only
 # ==========================================
 
 @router.get("/analytics/by-source")
 def revenue_by_source_api(
-    creator_id: int = None,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
 ):
     data = get_revenue_by_source(
         db,
-        creator_id
+        current_user.id
     )
 
     return {
@@ -97,17 +102,17 @@ def revenue_by_source_api(
 
 
 # ==========================================
-# Monthly Revenue
+# Monthly Revenue - Current User Only
 # ==========================================
 
 @router.get("/analytics/monthly")
 def monthly_revenue_api(
-    creator_id: int = None,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
 ):
     data = get_monthly_revenue(
         db,
-        creator_id
+        current_user.id
     )
 
     return {
@@ -116,35 +121,36 @@ def monthly_revenue_api(
 
 
 # ==========================================
-# Revenue Trend
+# Revenue Trend - Current User Only
 # ==========================================
 
 @router.get("/analytics/trend")
 def revenue_trend_api(
-    creator_id: int = None,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
 ):
     return get_revenue_trend(
         db,
-        creator_id
+        current_user.id
     )
 
 
 # ==========================================
-# Get Revenue By ID
+# Get Revenue By ID - Current User Only
 # ==========================================
 
 @router.get("/{revenue_id}")
 def get_revenue_by_id_api(
     revenue_id: int,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
 ):
     revenue = get_revenue_by_id(
         db,
         revenue_id
     )
 
-    if not revenue:
+    if not revenue or revenue.creator_id != current_user.id:
         raise HTTPException(
             status_code=404,
             detail="Revenue record not found"
@@ -156,15 +162,30 @@ def get_revenue_by_id_api(
 
 
 # ==========================================
-# Update Revenue
+# Update Revenue - Current User Only
 # ==========================================
 
 @router.put("/{revenue_id}")
 def update_revenue_api(
     revenue_id: int,
     revenue: RevenueUpdate,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
 ):
+    existing_revenue = get_revenue_by_id(
+        db,
+        revenue_id
+    )
+
+    if not existing_revenue or existing_revenue.creator_id != current_user.id:
+        raise HTTPException(
+            status_code=404,
+            detail="Revenue record not found"
+        )
+
+    # Prevent changing ownership
+    revenue.creator_id = None
+
     updated_revenue = update_revenue(
         db,
         revenue_id,
@@ -184,14 +205,26 @@ def update_revenue_api(
 
 
 # ==========================================
-# Delete Revenue
+# Delete Revenue - Current User Only
 # ==========================================
 
 @router.delete("/{revenue_id}")
 def delete_revenue_api(
     revenue_id: int,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
 ):
+    existing_revenue = get_revenue_by_id(
+        db,
+        revenue_id
+    )
+
+    if not existing_revenue or existing_revenue.creator_id != current_user.id:
+        raise HTTPException(
+            status_code=404,
+            detail="Revenue record not found"
+        )
+
     deleted_revenue = delete_revenue(
         db,
         revenue_id
