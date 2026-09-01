@@ -17,7 +17,8 @@ from app.services.notification_service import (
     update_notification,
     delete_notification,
     mark_all_as_read,
-    get_unread_count
+    get_unread_count,
+    generate_real_notifications
 )
 
 from app.services.alert_service import (
@@ -55,6 +56,33 @@ def create_notification_api(
         db,
         notification
     )
+
+
+# ==========================================
+# Check for New Alerts
+# ==========================================
+
+@router.post("/check-alerts")
+def check_alerts_api(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    new_notifs = generate_real_notifications(
+        db,
+        current_user.id
+    )
+
+    notifications = get_all_notifications(
+        db,
+        current_user.id
+    )
+
+    return {
+        "message": f"Alert check completed. {len(new_notifs)} new alert(s) generated.",
+        "new_count": len(new_notifs),
+        "total": len(notifications),
+        "data": notifications
+    }
 
 
 # ==========================================

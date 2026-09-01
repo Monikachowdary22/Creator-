@@ -318,6 +318,65 @@ def generate_pdf_report(report_data: dict):
 
         elements.append(table)
 
+    # ==========================================
+    # Sponsorships
+    # ==========================================
+
+    sponsorship_report = report_data.get(
+        "sponsorships",
+        {}
+    )
+
+    sponsorships_data = sponsorship_report.get(
+        "data",
+        []
+    )
+
+    if sponsorships_data:
+        elements.append(Spacer(1, 15))
+
+        elements.append(
+            Paragraph(
+                "Sponsorship Campaigns",
+                styles["Heading2"]
+            )
+        )
+
+        sponsorship_table = [
+            [
+                "Brand",
+                "Campaign",
+                "Contract Value",
+                "Status",
+                "Payment"
+            ]
+        ]
+
+        for sp in sponsorships_data:
+            sponsorship_table.append([
+                str(sp.get("brand_name", "")),
+                str(sp.get("campaign", "")),
+                str(sp.get("contract_value", 0)),
+                str(sp.get("status", "")),
+                str(sp.get("payment_status", ""))
+            ])
+
+        sp_table = Table(
+            sponsorship_table,
+            repeatRows=1
+        )
+
+        sp_table.setStyle(
+            TableStyle([
+                ("BACKGROUND", (0, 0), (-1, 0), colors.grey),
+                ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
+                ("GRID", (0, 0), (-1, -1), 0.5, colors.black),
+                ("PADDING", (0, 0), (-1, -1), 5)
+            ])
+        )
+
+        elements.append(sp_table)
+
     document.build(elements)
 
     buffer.seek(0)
@@ -606,6 +665,52 @@ def generate_excel_report(report_data: dict):
 
         audience_sheet.append([
             "No audience records available"
+        ])
+
+    # ==========================================
+    # Sponsorships Sheet
+    # ==========================================
+
+    sponsorship_sheet = workbook.create_sheet(
+        "Sponsorships"
+    )
+
+    sponsorship_report = report_data.get(
+        "sponsorships",
+        {}
+    )
+
+    sponsorship_data = sponsorship_report.get(
+        "data",
+        []
+    )
+
+    if sponsorship_data:
+
+        headers = list(
+            sponsorship_data[0].keys()
+        )
+
+        sponsorship_sheet.append(headers)
+
+        for cell in sponsorship_sheet[1]:
+            cell.font = Font(bold=True)
+
+        for record in sponsorship_data:
+
+            sponsorship_sheet.append([
+                record.get(header, "")
+                for header in headers
+            ])
+
+    else:
+
+        sponsorship_sheet.append([
+            "Sponsorships"
+        ])
+
+        sponsorship_sheet.append([
+            "No sponsorship records available"
         ])
 
     # ==========================================

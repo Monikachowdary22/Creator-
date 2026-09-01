@@ -241,6 +241,48 @@ def get_platform_report(
     return results
 
 
+from app.models.sponsorship import Sponsorship
+
+
+# ==========================================
+# Sponsorship Report
+# ==========================================
+
+def get_sponsorship_report(
+    db: Session,
+    creator_id: int
+):
+    sponsorships = (
+        db.query(Sponsorship)
+        .filter(Sponsorship.creator_id == creator_id)
+        .order_by(Sponsorship.start_date.desc())
+        .all()
+    )
+
+    total_value = sum(
+        float(s.contract_value)
+        for s in sponsorships
+    )
+
+    return {
+        "total_sponsorships": len(sponsorships),
+        "total_contract_value": total_value,
+        "data": [
+            {
+                "id": s.id,
+                "brand_name": s.brand_name,
+                "campaign": s.campaign,
+                "contract_value": float(s.contract_value),
+                "start_date": str(s.start_date),
+                "end_date": str(s.end_date),
+                "status": s.status,
+                "payment_status": s.payment_status
+            }
+            for s in sponsorships
+        ]
+    }
+
+
 # ==========================================
 # Complete Creator Report
 # ==========================================
@@ -280,5 +322,11 @@ def generate_creator_report(
             get_platform_report(
                 db,
                 creator_id
+            ),
+
+        "sponsorships":
+            get_sponsorship_report(
+                db,
+                creator_id
             )
-    }
+    }
