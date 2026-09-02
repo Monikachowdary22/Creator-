@@ -1,148 +1,44 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-
-from app.db.database import engine, Base
-
-# ==========================================
-# Models
-# ==========================================
-
-from app.models.user import User
-from app.models.content import Content
-from app.models.audience import Audience
-from app.models.growth import Growth
-from app.models.revenue import Revenue
-from app.models.sponsorship import Sponsorship
-from app.models.notification import Notification
-
-
-# ==========================================
-# Routers
-# ==========================================
-
-from app.routers.users import router as user_router
-from app.routers.auth import router as auth_router
-from app.routers.content import router as content_router
-from app.routers.analytics import router as analytics_router
-from app.routers.audience import router as audience_router
-from app.routers.social import router as social_router
-from app.routers.revenue import router as revenue_router
-from app.routers.sponsorship import router as sponsorship_router
-from app.routers.notifications import router as notification_router
-from app.routers.reports import router as reports_router
-
-
-# ==========================================
-# Create Database Tables
-# ==========================================
-
-Base.metadata.create_all(bind=engine)
-
-
-# ==========================================
-# FastAPI Application
-# ==========================================
-
-app = FastAPI(
-    title="CreatorIQ API"
+from app.routers import (
+    users,
+    auth,
+    content,
+    audience,
+    growth,
+    revenue,
+    sponsorship,
+    notifications,
+    reports,
+    analytics,
+    social,
 )
 
-
-# ==========================================
-# CORS Configuration
-# ==========================================
+app = FastAPI(
+    title="CreatorIQ - Content Creator Analytics API",
+    description="Backend API for content creator performance and monetization analytics",
+    version="1.0.0",
+)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:5173",
-        "http://127.0.0.1:5173",
-    ],
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-
-# ==========================================
-# User APIs
-# ==========================================
-
-app.include_router(user_router)
-
-
-# ==========================================
-# Authentication APIs
-# ==========================================
-
-app.include_router(
-    auth_router,
-    prefix="/auth"
-)
-
-
-# ==========================================
-# Content APIs
-# ==========================================
-
-app.include_router(content_router)
-
-
-# ==========================================
-# Analytics APIs
-# ==========================================
-
-app.include_router(analytics_router)
-
-
-# ==========================================
-# Audience and Growth APIs
-# ==========================================
-
-app.include_router(audience_router)
-
-
-# ==========================================
-# Social Media APIs
-# ==========================================
-
-app.include_router(social_router)
-
-
-# ==========================================
-# Revenue APIs
-# ==========================================
-
-app.include_router(revenue_router)
-
-
-# ==========================================
-# Sponsorship APIs
-# ==========================================
-
-app.include_router(sponsorship_router)
-
-
-# ==========================================
-# Notification APIs
-# ==========================================
-
-app.include_router(notification_router)
-
-
-# ==========================================
-# Reports APIs
-# ==========================================
-
-app.include_router(reports_router)
-
-
-# ==========================================
-# Home API
-# ==========================================
+app.include_router(auth.router, prefix="/auth", tags=["Auth"])
+app.include_router(users.router, prefix="/users", tags=["Users"])
+app.include_router(content.router, prefix="/content", tags=["Content"])
+app.include_router(audience.router, prefix="/audience", tags=["Audience"])
+app.include_router(revenue.router, prefix="/revenue", tags=["Revenue"])
+app.include_router(sponsorship.router, prefix="/sponsorships", tags=["Sponsorships"])
+app.include_router(notifications.router, prefix="/notifications", tags=["Notifications"])
+app.include_router(reports.router, prefix="/reports", tags=["Reports"])
+app.include_router(analytics.router, prefix="/analytics", tags=["Analytics"])
+app.include_router(social.router, prefix="/social", tags=["Social"])
 
 @app.get("/")
-def home():
-    return {
-        "message": "CreatorIQ API is running"
-    }
+def root():
+    return {"message": "CreatorIQ API is running"}
