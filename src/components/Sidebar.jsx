@@ -8,8 +8,6 @@ import {
   BarChart2,
   Award,
   Bell,
-  FileSpreadsheet,
-  User,
   LogOut,
 } from "lucide-react";
 

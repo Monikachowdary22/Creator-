@@ -80,6 +80,16 @@ function ContentAnalytics() {
     );
   }
 
+  if (error) {
+    return (
+      <div className="p-8">
+        <div className="p-4 bg-red-50 border border-red-200 text-red-700 text-sm rounded-xl">
+          {error}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="p-8 max-w-7xl mx-auto space-y-8">
       {/* Metric Cards */}

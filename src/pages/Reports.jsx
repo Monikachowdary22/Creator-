@@ -1,10 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
   getDashboardReport,
   downloadPdfReport,
   downloadExcelReport,
 } from "../services/api";
-import { FileText, FileSpreadsheet, Download, RefreshCw, CheckCircle2 } from "lucide-react";
+import { FileSpreadsheet, Download, RefreshCw, CheckCircle2 } from "lucide-react";
 
 function Reports() {
   const [report, setReport] = useState(null);
@@ -12,7 +12,7 @@ function Reports() {
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
 
-  const loadReport = async () => {
+  const loadReport = useCallback(async () => {
     setLoading(true);
     setError("");
     setMessage("");
@@ -26,10 +26,24 @@ function Reports() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
-    loadReport();
+    let ignore = false;
+    async function init() {
+      try {
+        const data = await getDashboardReport();
+        if (!ignore) {
+          setReport(data);
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    }
+    init();
+    return () => {
+      ignore = true;
+    };
   }, []);
 
   const downloadPdf = async () => {
@@ -72,7 +86,6 @@ function Reports() {
     }
   };
 
-  const content = report?.content_performance || {};
   const platforms = report?.platform_comparison || [];
 
   return (
@@ -120,6 +133,12 @@ function Reports() {
         <div className="flex items-center gap-2 bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs px-4 py-3 rounded-lg">
           <CheckCircle2 className="w-4 h-4 text-emerald-600" />
           <span>{message}</span>
+        </div>
+      )}
+
+      {error && (
+        <div className="flex items-center gap-2 bg-red-50 border border-red-200 text-red-800 text-xs px-4 py-3 rounded-lg">
+          <span>{error}</span>
         </div>
       )}
 

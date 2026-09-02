@@ -34,6 +34,16 @@ function Sponsorships() {
     );
   }
 
+  if (error) {
+    return (
+      <div className="p-8">
+        <div className="p-4 bg-red-50 border border-red-200 text-red-700 text-sm rounded-xl">
+          {error}
+        </div>
+      </div>
+    );
+  }
+
   const rawList = Array.isArray(data) ? data : data?.data || [];
   const sponsorshipList = rawList.length > 0 ? rawList : [
     { id: 1, brand_name: "TechGear Pro", deliverables: "1 Dedicated YouTube Video + 1 Reel", deal_value: 4500, status: "Active", due_date: "2025-06-15" },

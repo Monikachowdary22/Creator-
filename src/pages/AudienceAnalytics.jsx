@@ -46,8 +46,17 @@ function AudienceAnalytics() {
     );
   }
 
+  if (error) {
+    return (
+      <div className="p-8">
+        <div className="p-4 bg-red-50 border border-red-200 text-red-700 text-sm rounded-xl">
+          {error}
+        </div>
+      </div>
+    );
+  }
+
   const report = data || {};
-  const audienceList = Array.isArray(report.data) ? report.data : [];
 
   const ageData = [
     { name: "18-24", value: 38, color: "#2563eb" },

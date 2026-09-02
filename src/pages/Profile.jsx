@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import api from "../services/api";
-import { User, Mail, Shield, Key, BellRing, Smartphone, Check } from "lucide-react";
+import { User, Mail, Shield, Check } from "lucide-react";
 
 function Profile() {
   const [profile, setProfile] = useState(null);
@@ -30,6 +30,16 @@ function Profile() {
         <div className="flex items-center gap-3 text-gray-500">
           <div className="w-5 h-5 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
           <span className="text-sm font-medium">Loading profile...</span>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="p-8">
+        <div className="p-4 bg-red-50 border border-red-200 text-red-700 text-sm rounded-xl">
+          {error}
         </div>
       </div>
     );

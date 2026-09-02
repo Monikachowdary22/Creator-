@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { getNotifications, markAllNotificationsAsRead } from "../services/api";
-import { Bell, CheckCheck, AlertCircle, Info, Sparkles } from "lucide-react";
+import { Bell, CheckCheck, Info, Sparkles } from "lucide-react";
 
 function Notifications() {
   const [data, setData] = useState(null);
@@ -29,6 +29,16 @@ function Notifications() {
         <div className="flex items-center gap-3 text-gray-500">
           <div className="w-5 h-5 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
           <span className="text-sm font-medium">Loading notifications...</span>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="p-8">
+        <div className="p-4 bg-red-50 border border-red-200 text-red-700 text-sm rounded-xl">
+          {error}
         </div>
       </div>
     );

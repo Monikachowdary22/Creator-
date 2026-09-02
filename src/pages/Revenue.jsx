@@ -43,15 +43,30 @@ function Revenue() {
     );
   }
 
-  const report = data || {};
-  const revenueList = Array.isArray(report.data) ? report.data : [];
+  if (error) {
+    return (
+      <div className="p-8">
+        <div className="p-4 bg-red-50 border border-red-200 text-red-700 text-sm rounded-xl">
+          {error}
+        </div>
+      </div>
+    );
+  }
 
-  const revenueBreakdown = [
-    { source: "Brand Sponsorships", amount: 48500 },
-    { source: "YouTube AdSense", amount: 22400 },
-    { source: "Affiliate Programs", amount: 12800 },
-    { source: "Digital Products / Courses", amount: 9600 },
-  ];
+  const report = data || {};
+  const rawList = Array.isArray(report.data) ? report.data : [];
+
+  const revenueBreakdown = rawList.length > 0
+    ? rawList.map((item) => ({
+        source: item.source || item.description || "Revenue Stream",
+        amount: item.amount || 0,
+      }))
+    : [
+        { source: "Brand Sponsorships", amount: 48500 },
+        { source: "YouTube AdSense", amount: 22400 },
+        { source: "Affiliate Programs", amount: 12800 },
+        { source: "Digital Products / Courses", amount: 9600 },
+      ];
 
   return (
     <div className="p-8 max-w-7xl mx-auto space-y-8">

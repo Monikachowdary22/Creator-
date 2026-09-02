@@ -56,6 +56,16 @@ function Dashboard() {
     );
   }
 
+  if (error) {
+    return (
+      <div className="p-8">
+        <div className="p-4 bg-red-50 border border-red-200 text-red-700 text-sm rounded-xl">
+          {error}
+        </div>
+      </div>
+    );
+  }
+
   const content = data?.content_performance || {};
   const platforms = data?.platform_comparison || [];
 
